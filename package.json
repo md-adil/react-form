@@ -1,11 +1,24 @@
 {
+  "name": "material-ui-react-form",
+  "version": "0.0.1",
   "dependencies": {
-    "@material-ui/core": "^4.11.4",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
+  "license": "MIT",
+  "repository": {
+    "url": "https://github.com/md-adil/react-form",
+    "type": "git"
+  },
+  "keywords": [
+    "material ui",
+    "react",
+    "react form",
+    "react hook"
+],
   "main": "./build/form.js",
   "devDependencies": {
+    "@material-ui/core": "^4.11.4",
     "@types/react": "^17.0.5",
     "@types/react-dom": "^17.0.3",
     "typescript": "^4.2.4"

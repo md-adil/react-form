@@ -1,7 +1,8 @@
+```tsx
 import React from "react";
 import {render} from "react-dom";
-import { Button, TextField} from "@material-ui/core";
-import { useForm } from ".";
+import { Button, TextField } from "@material-ui/core";
+import { useForm } from "material-ui-react-form";
 
 function App() {
     const [fields, validate] = useForm({
@@ -13,6 +14,7 @@ function App() {
 
     const handleSave = () => {
         const values = validate();
+        console.log(values) // {name: "some name", email: "some email", phone: "some phone"}
     }
     return (
         <div>
@@ -25,3 +27,5 @@ function App() {
 }
 
 render(<App />, document.getElementById('root'));
+
+```
