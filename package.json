@@ -1,9 +1,8 @@
 {
   "name": "material-ui-react-form",
-  "version": "0.0.1",
-  "dependencies": {
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+  "version": "0.0.6",
+  "peerDependencies": {
+    "react": ">=16.8.0"
   },
   "license": "MIT",
   "repository": {
@@ -15,12 +14,18 @@
     "react",
     "react form",
     "react hook"
-],
-  "main": "./build/form.js",
+  ],
+  "main": "lib/index.js",
+  "module": "esm/index.js",
   "devDependencies": {
-    "@material-ui/core": "^4.11.4",
+    "react-dom": "^17.0.2",
+    "react": "17.0.2",
     "@types/react": "^17.0.5",
     "@types/react-dom": "^17.0.3",
     "typescript": "^4.2.4"
+  },
+  "scripts": {
+    "build": "rm -rf ./lib/* ./esm/* && tsc && tsc -m esNext --outDir esm",
+    "dev": "npx parcel index.html"
   }
 }

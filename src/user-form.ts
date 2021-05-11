@@ -7,7 +7,7 @@ type Rules<T> = {
 };
 
 type Field = {
-    error: boolean;
+    error?: boolean;
     onChange(e: any): void;
     value: ReactText;
     helperText?: string;
@@ -21,6 +21,10 @@ type Values<T> = {
     [K in keyof T]: ReactText;
 };
 
+type Errors<T> = {
+    [K in keyof T]: string;
+};
+
 function getDefaultState<T>( props: Rules<T>, handleChange: (fieldName: keyof T, val: ReactText) => void): Fields<T> {
     const fields: any = {};
     for (const prop in props) {
@@ -28,7 +32,6 @@ function getDefaultState<T>( props: Rules<T>, handleChange: (fieldName: keyof T,
             continue;
         }
         const field = {
-            error: false,
             value: "",
             onChange(e: any) {
                 handleChange(prop, e.target.value);
@@ -81,25 +84,24 @@ function test(pattern: Test, value: ReactText): boolean {
 
 function validate<T>(
     rules: Rules<T>,
+    fields: Fields<T>,
     setFields: Dispatch<SetStateAction<Fields<T>>>
 ): Values<T> | null {
     let hasError = false;
     const values: any = {};
-    setFields((fields) => {
-        const newFields: any = {};
-        for (const key in rules) {
-            if (!Object.prototype.hasOwnProperty.call(rules, key)) {
-                continue;
-            }
-            const f = validateField(fields[key], rules[key], fields[key].value);
-            newFields[key] = f;
-            if (f.error) {
-                hasError = true;
-            }
-            values[key] = f.value;
+    const newFields: any = {};
+    for (const key in rules) {
+        if (!Object.prototype.hasOwnProperty.call(rules, key)) {
+            continue;
         }
-        return newFields;
-    });
+        const f = validateField(fields[key], rules[key], fields[key].value);
+        newFields[key] = f;
+        if (f.error) {
+            hasError = true;
+        }
+        values[key] = f.value;
+    }
+    setFields(newFields);
     if (hasError) {
         return null;
     }
@@ -112,15 +114,21 @@ function validateField(
     value: ReactText
 ): Field {
     const error = isInvalid(rule, value);
+    if (error) {
+        return {
+            ...field,
+            error: true,
+            value,
+            helperText: error,
+        };
+    }
     return {
-        ...field,
-        error: Boolean(error),
         value,
-        helperText: error,
-    };
+        onChange: field.onChange
+    }
 }
 
-export function useForm<T>(rules: Rules<T>) {
+export default function useForm<T>(rules: Rules<T>) {
     const isDirty = useRef(false);
     const [fields, setFields] = useState(() => getDefaultState(rules, (key, val) => {
             if (isDirty.current) {
@@ -138,9 +146,33 @@ export function useForm<T>(rules: Rules<T>) {
     );
     return [
         fields,
-        () => {
-            isDirty.current = true;
-            return validate(rules, setFields);
-        },
+        {
+            setFields,
+            setValues(values: Partial<Values<T>>) {
+                setFields((fields) => {
+                    const newFields = {...fields};
+                    for (const key in values) {
+                        if (!Object.prototype.hasOwnProperty.call(values, key)) {
+                            continue;
+                        }
+                        newFields[key].value = values[key]!;
+                    }
+                    return newFields;
+                })
+            },
+            setErrors(errors: Partial<Errors<T>>) {
+                setFields((fields) => {
+                    const newFields = {...fields};
+                    for (const key in errors) {
+                        newFields[key].error = true;
+                        newFields[key].helperText = errors[key];
+                    }
+                    return newFields;
+                })
+            },
+            validate: () => {
+                isDirty.current = true;
+                return validate(rules, fields, setFields);
+        }},
     ] as const;
 }

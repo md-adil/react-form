@@ -1,4 +1,5 @@
 *
-!build
+!esm/*
+!lib/*
 !.package.json
-
+!README.md
